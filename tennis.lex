@@ -1,23 +1,11 @@
 %{
 #include <string.h>
 
-#define MAX_SIZE 100
-#define TITLE 500
-#define NAME 501
-#define TENNIS_PLAYER 502
-#define GENDER 503
-#define COMP 504
-#define COMMA 505
-#define YEAR_NUM 506
-#define HYPHEN 507
-#define APOSTROPHES 508
-#define STARS 509
-
+enum {MAX_SIZE = 100,TITLE,NAME,TENNIS_PLAYER,GENDER,
+		COMP,COMMA,YEAR_NUM,HYPHEN,APOSTROPHES,STARS};    
 enum gender{WOMAN, MAN, NUM};
 union {
-	char comp[MAX_SIZE];
-	char name[MAX_SIZE];
-	char title[MAX_SIZE];
+	char str[MAX_SIZE];
 	int year;
 	enum gender gen;
 }yylval;
@@ -28,13 +16,13 @@ union {
 
 %%
 
-"Winners"									{ strcpy (yylval.title, yytext); return TITLE; }
+"Winners"									{ strcpy (yylval.str, yytext); return TITLE; }
 
-"**"										{ strcpy (yylval.title, yytext); return STARS; }
+"**"										{ strcpy (yylval.str, yytext); return STARS; }
 
 "<name>"									{ return NAME;   }
 
-[a-zA-Z]+(" "[a-zA-Z]+)*					{ strcpy(yylval.name, yytext); return TENNIS_PLAYER; }
+[a-zA-Z]+(" "[a-zA-Z]+)*					{ strcpy(yylval.str, yytext); return TENNIS_PLAYER; }
 
 '|\" 										{ return APOSTROPHES; }
 
@@ -42,13 +30,14 @@ union {
 
 "<Woman>"									{ yylval.gen = WOMAN; return GENDER; }
 
-18[5-9][0-9]|19[0-9]{2}|[2-9][0-9]{3,}    	{ yylval.year = atoi(yytext); yylval.year = yylval.year == 2020 ? 2021 : yylval.year; return YEAR_NUM; }
+18[5-9][0-9]|19[0-9]{2}|[2-9][0-9]{3,}    	{ yylval.year = atoi(yytext); yylval.year = yylval.year == 2020 ? 2021 
+														: yylval.year; return YEAR_NUM; }
 
 [\-?]										{ return HYPHEN; }
 
 ,											{ return COMMA; }
 
-\<[A-Za-z]+(" "[A-Za-z]+)*\>				{ strcpy(yylval.comp, yytext); return COMP; }
+\<[A-Za-z]+(" "[A-Za-z]+)*\>				{ strcpy(yylval.str, yytext); return COMP; }
 
 [ \t\n\r]+									{ /* skip white space */ }               
 
@@ -78,10 +67,10 @@ int main (int argc, char **argv)
 	while ((token = yylex()) != 0) {
 		switch (token) {
 			case TENNIS_PLAYER: 	
-				printf("NAME\t\t\t%s\t\t\t%s\n", yytext, yylval.name);
+				printf("NAME\t\t\t%s\t\t\t%s\n", yytext, yylval.str);
 			      	break;
 			case COMP: 	
-				printf("COMP\t\t\t%s\t\t\t%s\n", yytext, yylval.comp);
+				printf("COMP\t\t\t%s\t\t\t%s\n", yytext, yylval.str);
 			      	break;
 			case YEAR_NUM:
 				printf("YEAR\t\t\t%s\t\t\t%d\n", yytext, yylval.year);
@@ -96,7 +85,7 @@ int main (int argc, char **argv)
 				printf("ID\t\t\t%s\n", yytext);
 			      	break;
 			case TITLE: 	
-				printf("TITLE\t\t\t%s\t\t\t%s\n", yytext, yylval.title);
+				printf("TITLE\t\t\t%s\t\t\t%s\n", yytext, yylval.str);
 			      	break;
 			case HYPHEN: 	
 				printf("HYPHEN\t\t\t%s\n", yytext);
